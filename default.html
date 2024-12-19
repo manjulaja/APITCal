@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APIT Calculator</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: #1877f2;
+        }
+        .results div {
+            background: #e9ebee;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: larger; /* Larger font for visibility */
+        }
+        .tax-display {
+            font-size: 1.25rem;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">APIT Calculator  <div id="TaxDiff" class="text-center"></div> </h1>
+        <div class="form-group">
+            <label for="salary">Enter Monthly Salary (LKR):</label>
+            <input type="number" id="salary" class="form-control" placeholder="Enter your monthly salary">
+        </div>
+        <button onclick="calculateTax()" class="btn btn-primary btn-block">Calculate</button>
+        <div class="results mt-3">
+            <div id="newTax" class="tax-display"></div>
+            <div id="oldTax" class="tax-display"></div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="grid p-3 border bg-light">
+                    <h3>New Tax Grid</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Annual Taxable Portion (LKR)</th>
+                                <th>Tax Rate (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Up to 1,800,000</td><td>Tax relief</td></tr>
+                            <tr><td>1,000,000</td><td>6%</td></tr>
+                            <tr><td>500,000</td><td>12%</td></tr>
+                            <tr><td>500,000</td><td>18%</td></tr>
+                            <tr><td>500,000</td><td>24%</td></tr>
+                            <tr><td>500,000</td><td>30%</td></tr>
+                            <tr><td>Above</td><td>36%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="grid p-3 border bg-light">
+                    <h3>Old Tax Grid</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Annual Taxable Portion (LKR)</th>
+                                <th>Tax Rate (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Up to 1,200,000</td><td>Tax relief</td></tr>
+                            <tr><td>500,000</td><td>6%</td></tr>
+                            <tr><td>500,000</td><td>12%</td></tr>
+                            <tr><td>500,000</td><td>18%</td></tr>
+                            <tr><td>500,000</td><td>24%</td></tr>
+                            <tr><td>500,000</td><td>30%</td></tr>
+                            <tr><td>Above</td><td>36%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateTax() {
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const annualSalary = salary * 12;
+
+            function calculateGridTax(grid) {
+                let tax = 0;
+                let remaining = annualSalary;
+
+                for (const bracket of grid) {
+                    if (remaining <= 0) break;
+                    const taxable = Math.min(bracket.limit, remaining);
+                    tax += (taxable * bracket.rate) / 100;
+                    remaining -= taxable;
+                }
+                return tax;
+            }
+
+            const newGrid = [
+                { limit: 1800000, rate: 0 },
+                { limit: 1000000, rate: 6 },
+                { limit: 500000, rate: 12 },
+                { limit: 500000, rate: 18 },
+                { limit: 500000, rate: 24 },
+                { limit: 500000, rate: 30 },
+                { limit: Infinity, rate: 36 }
+            ];
+
+            const oldGrid = [
+                { limit: 1200000, rate: 0 },
+                { limit: 500000, rate: 6 },
+                { limit: 500000, rate: 12 },
+                { limit: 500000, rate: 18 },
+                { limit: 500000, rate: 24 },
+                { limit: 500000, rate: 30 },
+                { limit: Infinity, rate: 36 }
+            ];
+
+            const newTax = calculateGridTax(newGrid);
+            const oldTax = calculateGridTax(oldGrid);
+
+            document.getElementById('newTax').innerText = `New Tax Grid: Annual Tax = LKR ${newTax.toFixed(2)}, Monthly Tax = LKR ${(newTax / 12).toFixed(2)}`;
+            document.getElementById('oldTax').innerText = `Old Tax Grid: Annual Tax = LKR ${oldTax.toFixed(2)}, Monthly Tax = LKR ${(oldTax / 12).toFixed(2)}`;
+
+            document.getElementById('TaxDiff').innerText = `NPP Benefit = LKR ${((oldTax/12 )- (newTax/12)).toFixed(2)}`;
+
+
+        }
+    </script>
+    <!-- Include Bootstrap JS and its dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
